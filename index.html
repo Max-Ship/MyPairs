@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Игра в пары</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <div class="container cards game" id="game">
+    <div class="cards__game-up-wrapper">
+      <select class="cards__card-skin" id="skin" name="skin">
+        <option value="skins-of-cards" selected disabled>Обертки для карт</option>
+      </select>
+      <button class="game__help" id="help">?</button>
+      <div class="cards__time-wrapper" id="time">Таймер</div>
+    </div>
+    <ul class="cards__container-game card" id="cards"></ul>
+  </div>
+</body>
+<script src="./main.js"></script>
+
+</html>
