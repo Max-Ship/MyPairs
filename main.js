@@ -107,33 +107,35 @@ function selectWrapperCard(statusInput) {
   }
 }
 // 2)Функция кнопки "подсказка"
-let isHelp = false
-function getHelp(millisecs) {
-  const giveHelp = document.getElementById("help");
-  const forHelp = document.querySelectorAll(".card__close");
+let isHelp = {is: false};
 
+function getHelp(millisecs, arrOffCardsObj) {
+  const giveHelp = document.getElementById("help");
+ 
   // чтобы кнопка включалась при следующей игре
   giveHelp.disabled = false;
   giveHelp.style.backgroundColor = '#FFD700';
-  isHelp = true
+
   // открываем все карты
   giveHelp.addEventListener("click", function () {
     giveHelp.style.backgroundColor = 'red';
-    for (let i = 0; i < forHelp.length; i++) {
-      forHelp[i].classList.add("card__open");
-      forHelp[i].classList.remove("card__close");
+    for (let i = 0; i < arrOffCardsObj.length; i++) {
+      arrOffCardsObj[i].card.classList.add("card__open");
+      arrOffCardsObj[i].card.classList.remove("card__close");
 
-      giveHelp.disabled = true;
+      giveHelp.disabled = true;   
+      isHelp.is = true;   
     }
     // закрываем все карты, кроме угаданных
     function closeAllCards() {
-      for (let i = 0; i < forHelp.length; i++) {
-        if (!forHelp[i].classList.contains("success")) {
-          forHelp[i].classList.add("card__close");
-          forHelp[i].classList.remove("card__open");
+      for (let i = 0; i < arrOffCardsObj.length; i++) {
+        if (!arrOffCardsObj[i].card.classList.contains("success")) {
+          arrOffCardsObj[i].card.classList.add("card__close");
+          arrOffCardsObj[i].card.classList.remove("card__open"); 
+          arrOffCardsObj[i].open = false;               
         }
       }
-      isHelp = false
+      isHelp.is = false;
     }
     // временной интервал для закрытия карт
     setTimeout(closeAllCards, millisecs);
@@ -146,11 +148,12 @@ function getHelp(millisecs) {
 let firstOpenCard = null;
 let secondOpenCard = null;
 //Функция открытия/закрытия/метки найденно для двух карт
-function clickCards(obj) {
-  if (isHelp) return
-  if (obj.succes || obj.open) {
+function clickCards(obj) { 
+  if (isHelp.is) return;  
+  if (obj.succes || obj.open) {    
     return
   }
+  
 
   if (secondOpenCard !== null && firstOpenCard.number !== secondOpenCard.number) {
     firstOpenCard.is_close();
@@ -161,7 +164,7 @@ function clickCards(obj) {
     secondOpenCard = null;
   }
 
-  if (firstOpenCard === null) {
+  if (firstOpenCard === null) {     
     firstOpenCard = obj;
     firstOpenCard.open = true;
     firstOpenCard.is_open();
@@ -171,14 +174,14 @@ function clickCards(obj) {
     secondOpenCard.is_open();
   }
 
-  if (secondOpenCard !== null && firstOpenCard.number === secondOpenCard.number && firstOpenCard.number !== secondOpenCard) {
+  if (secondOpenCard !== null && firstOpenCard.number === secondOpenCard.number && firstOpenCard !== secondOpenCard) {
     firstOpenCard.succes = true;
     secondOpenCard.succes = true;
     firstOpenCard.is_succes();
     secondOpenCard.is_succes();
     firstOpenCard = null;
     secondOpenCard = null;
-  }
+     }     
 }
 /*------------------------------------------------------------------------------------------------*/
 //Функция - условие победы или поражения
@@ -260,7 +263,9 @@ function statusGame(num, time) {
 class Card {
   constructor(number, count) {
     this.number = number;
-    this.count = count;
+    this.count = count; 
+    this.open = false;    
+    this.succes = false;  
   }
 
   createElement() {
@@ -272,8 +277,9 @@ class Card {
     img.src = `img/${li.id}.png`;
     li.append(img);
 
-    li.addEventListener('click', () => {
-      clickCards(this);
+    li.addEventListener('click', () => {      
+      if (isHelp.is) return;
+      clickCards(this);      
     })
     li.classList.add("card__style", "card__close");
     switch (this.count) {
@@ -291,7 +297,7 @@ class Card {
         break;
     }
     this.card = li;
-    return li
+    return this;
   }
 
   is_open() {
@@ -314,6 +320,7 @@ class CreatFild {
   constructor(count, container) {
     this.count = count;
     this.container = container;
+    this.arrOffCards = [];
   }
 
   creatFild() {
@@ -323,9 +330,10 @@ class CreatFild {
     let card;
     for (let num of arrMixedCards) {
       card = new Card(num, this.count).createElement();
-      this.container.append(card);
+        this.container.append(card.card);
+        this.arrOffCards.push(card);
     }
-  }
+  } 
 }
 /*---------------------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------------------*/
@@ -393,32 +401,26 @@ function renderGame() {
       gameBegun.gameStart.classList.add("remove-wrapper-start-game");
       gameBegun.gameStart.classList.remove("game-start");
       const container = document.getElementById("cards");
-      let newGame;
+      
+      function startGameWProps(countFild, helpTime, countStGame, timeGame) {
+        newGame = new CreatFild(countFild, container);
+        newGame.creatFild();         
+        getHelp(helpTime, newGame.arrOffCards);
+        statusGame(countStGame, timeGame);
+      }
 
       switch (everyButton) {
-        case gameBegun.buttonEasy:
-          newGame = new CreatFild(16, container);
-          newGame.creatFild();
-          getHelp(2000)
-          statusGame(16, "no time");
+        case gameBegun.buttonEasy:          
+          startGameWProps(16, 2000, 16, "no time");
           break;
         case gameBegun.buttonNormal:
-          newGame = new CreatFild(36, container);
-          newGame.creatFild();
-          getHelp("4000")
-          statusGame(36, 600);
+          startGameWProps(36, 4000, 36, 600);
           break;
         case gameBegun.buttonHard:
-          newGame = new CreatFild(64, container);
-          newGame.creatFild();
-          getHelp("6000")
-          statusGame(64, 900);
+          startGameWProps(64, 6000, 64, 900);
           break;
         case gameBegun.buttonVeryHard:
-          newGame = new CreatFild(100, container);
-          newGame.creatFild();
-          getHelp("8000")
-          statusGame(100, 1200);
+          startGameWProps(1000, 8000, 1000, 1200);
           break;
       }
       selectWrapperCard(true);
@@ -449,3 +451,4 @@ function renderGame() {
 document.addEventListener('DOMContentLoaded', function () {
   renderGame();
 });
+
