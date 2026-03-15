@@ -4,9 +4,8 @@
 function createNumbersArray(count) {
   const arr = [1, 2, 3, 4, 5, 6, 7, 8];
   const cards = [];
-  let j = 0;
 
-  for (let i = 1; i <= count; i++ && j++) {
+  for (let i = 1, j = 0; i <= count; i++, j++) {
     if (j === arr.length) {
       j = 0
     }
