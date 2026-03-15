@@ -420,7 +420,7 @@ function renderGame() {
           startGameWProps(64, 6000, 64, 900);
           break;
         case gameBegun.buttonVeryHard:
-          startGameWProps(1000, 8000, 1000, 1200);
+          startGameWProps(100, 8000, 1000, 1200);
           break;
       }
       selectWrapperCard(true);
